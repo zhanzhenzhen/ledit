@@ -1,5 +1,11 @@
 # ledit: Edit local files via browser
 
+Before install, make sure your Node.js version is 4.0 or higher.
+
+```bash
+npm install -g ledit
+```
+
 Configure:
 
 ```
