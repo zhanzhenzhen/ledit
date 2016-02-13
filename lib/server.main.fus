@@ -14,4 +14,7 @@ $server.onRequest ctx ->
         response.handleFile()
 $server.host: "127.0.0.1"
 $server.httpPort: 50000
+$server.homePageAfterScript = "
+    <script src="/3rd-party/ace/ace.js" type="text/javascript" />
+"
 $server.start()
