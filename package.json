@@ -11,7 +11,8 @@
         "url": "https://github.com/zhanzhenzhen/ledit.git"
     },
     "dependencies": {
-        "site": "0.12.0"
+        "site": "0.12.0",
+        "babel-polyfill": "6.x"
     },
     "engines": {
         "node": ">=4.0.0"

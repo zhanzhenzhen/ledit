@@ -1,0 +1,3 @@
+fus 0.7.0
+
+import "./server.main"
