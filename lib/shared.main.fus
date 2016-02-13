@@ -1,0 +1,11 @@
+fus 0.7.0
+
+shared: require("site/shared")
+shared.lits: [
+    {
+        $languages: ["en"]
+        title: "ledit"
+    }
+]
+shared.headText: (path, page, lit) ->
+    page.title: lit.title
