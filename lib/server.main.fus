@@ -1,0 +1,17 @@
+fus 0.7.0
+
+$server: import "site/server"
+$shared: import "site/shared"
+$fs: import "fs"
+import "./shared.main"
+
+$server.onRequest ctx ->
+    path: ctx.request.path
+    response: ctx.response
+    if path.is("/")
+        response.handleHome()
+    else
+        response.handleFile()
+$server.host: "127.0.0.1"
+$server.httpPort: 50000
+$server.start()

@@ -12,3 +12,9 @@ Desktop.ini
 node_modules
 
 *.log
+
+*.pem
+*.p12
+
+/lib
+/test

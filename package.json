@@ -1,8 +1,8 @@
 {
     "name": "ledit",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "ledit",
-    "keywords": [],
+    "keywords": ["editor", "browser", "localhost", "local", "ide"],
     "author": "Zhenzhen Zhan <zhanzhenzhen@hotmail.com>",
     "homepage": "https://github.com/zhanzhenzhen/ledit",
     "license": "MIT",
@@ -11,9 +11,13 @@
         "url": "https://github.com/zhanzhenzhen/ledit.git"
     },
     "dependencies": {
+        "site": "0.12.0"
     },
-    "devDependencies": {
-        "babel": "5.x"
+    "engines": {
+        "node": ">=4.0.0"
     },
-    "main": "./target/main"
+    "bin": {
+        "ledit": "./bin/ledit"
+    },
+    "preferGlobal": true
 }
