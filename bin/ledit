@@ -2,4 +2,4 @@
 
 "use strict";
 require("babel-polyfill");
-require("../target/bin");
+require("../target/bin.main");
