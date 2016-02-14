@@ -6,10 +6,14 @@ $fs: import "fs"
 import "./shared.main"
 
 $server.onRequest ctx ->
-    path: ctx.request.path
+    request: ctx.request
     response: ctx.response
+    path: request.path
     if path.is("/")
         response.handleHome()
+    else if path.is("/svc/files")
+        do --
+            response.send $fs.readdirAsync(request.data)'wait
     else
         response.handleFile()
 $server.host: "127.0.0.1"
