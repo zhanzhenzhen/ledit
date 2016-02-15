@@ -14,7 +14,7 @@ $server.onRequest ctx ->
         response.handleHome()
     else if path.is("/svc/files")
         files: $fs.readdirAsync(request.data)'wait
-        stats: Promise.all(files.map(file -> $fs.statAsync($path.join(request.data, file))))'wait
+        stats: Promise.all(files.map(file -> $fs.statAsync($path.posix.join(request.data, file))))'wait
         response.send files.map((file, index) ->
             path: $path.join(request.data, file)
             {

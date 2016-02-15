@@ -8,6 +8,8 @@ web: npmMate.web
 global.editor: null
 global.fusApi: require("futurescript/es5-target/locked-api")
 
+currentDirectory: null
+
 newScene: ui.Stack(
     {
         horizontal: true
@@ -15,11 +17,12 @@ newScene: ui.Stack(
     ui.Stack(
         {
             width: 0.2
+            padding: "1rem"
         },
         ui.Text("/").setHeightInRem(2) as dirText,
         ui.Text("").setHeightInRem(2) as fileText,
         ui.Button("Up").setWidth(1) as upButton,
-        ui.Stack() as filesStack
+        ui.Stack{childSpacing: "0.5rem", overflow: "scroll"} as filesStack
     ) as leftStack,
     ui.Element(
         {
@@ -34,12 +37,19 @@ newScene: ui.Stack(
     ) as editorElement
 )
 
+upButton.onClick <>
+    if currentDirectory ≠ "/"
+        pos: currentDirectory.lastIndexOf("/")
+        showFiles(pos = 0 ? "/" | currentDirectory.substr(0, pos))
+
 ui.root
 .setBackgroundPaint("rgb(39,40,34)")
 .setPaint("rgb(240,240,240)")
 .add(newScene)
 
 showFiles: path ->
+    currentDirectory: path
+    dirText.setText path
     filesStack.empty()
     web.jsonPost("/svc/files", path)'wait.body.forEach file ->
         text: ui.Text(file.name)
@@ -47,10 +57,12 @@ showFiles: path ->
             if file.isDirectory
                 showFiles(file.path)
             else
+                fileText.setText file.name
                 editor.setValue web.jsonPost("/svc/file/read", file.path)'wait.body
                 if not client.browser.isTouch
                     editor.focus()
                 editor.navigateFileStart()
+        text.setPointer "link"
         filesStack.add text
 showFiles "/"
 
