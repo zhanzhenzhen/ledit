@@ -23,11 +23,28 @@ $server.onRequest ctx ->
                 isDirectory: stats.(index).isDirectory()
             }
         )
+    else if path.is("/svc/file/read")
+        response.send $fs.readFileAsync(request.data, {encoding: "utf8"})'wait
     else
         response.handleFile()
 $server.host: "127.0.0.1"
 $server.httpPort: 50000
 $server.homePageAfterScript: "
+    <style type="text/css"><![CDATA[
+        #editor {
+            font-family: "SourceCodeProWoff", "Source Code Pro", Menlo, Consolas, "Ubuntu Mono", "Courier New", Courier, "Lantinghei SC", "Microsoft YaHei UI", "Microsoft YaHei", SimHei;
+            font-size: 1rem;
+            line-height: 1.3;
+            width: 100%;
+            height: 100%;
+        }
+        @font-face {
+            font-family: "SourceCodeProWoff";
+            font-style: normal;
+            font-weight: 400;
+            src: url(/3rd-party/SourceCodePro-Regular.otf.woff) format("woff");
+        }
+    ]]></style>
     <script src="/3rd-party/ace/ace.js" type="text/javascript" />
 "
 $server.start()

@@ -16,7 +16,7 @@ var createLineSymbol = function() {
 };
 
 var update = function() {
-    var newValue = tryEditor.getValue();
+    var newValue = editor.getValue();
     if (newValue !== editorValue) {
         try {
             var output = fusApi.generateOutput({
