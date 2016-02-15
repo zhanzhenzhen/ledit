@@ -13,9 +13,9 @@ newScene: ui.Stack(
         {
             width: 0.2
         },
-        ui.Text("/") as dirText,
-        ui.Text("") as fileText,
-        ui.Button("Up") as upButton,
+        ui.Text("/").setHeightInRem(2) as dirText,
+        ui.Text("").setHeightInRem(2) as fileText,
+        ui.Button("Up").setWidth(1) as upButton,
         ui.Stack() as filesStack
     ) as leftStack,
     ui.Element(
@@ -34,6 +34,13 @@ ui.root
 .setPaint("rgb(240,240,240)")
 .add(newScene)
 
-do --
-    web.jsonPost("/svc/files", "/")'wait.body.forEach file ->
-        filesStack.add ui.Text(file)
+showFiles: path ->
+    filesStack.empty()
+    web.jsonPost("/svc/files", path)'wait.body.forEach file ->
+        text: ui.Text(file.name)
+        text.onClick <>
+            if file.isDirectory
+                showFiles(file.path)
+            else
+        filesStack.add text
+showFiles "/"
