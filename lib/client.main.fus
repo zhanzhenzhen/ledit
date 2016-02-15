@@ -10,6 +10,13 @@ global.fusApi: require("futurescript/es5-target/locked-api")
 
 currentDirectory: null
 
+extname: filename ->
+    pos: filename.lastIndexOf(".")
+    if pos = -1 or pos = 0
+        ""
+    else
+        filename.substr(pos)
+
 newScene: ui.Stack(
     {
         horizontal: true
@@ -18,9 +25,10 @@ newScene: ui.Stack(
         {
             width: 0.2
             padding: "1rem"
+            childSpacing: "1rem"
         },
-        ui.Text("/").setHeightInRem(2) as dirText,
-        ui.Text("").setHeightInRem(2) as fileText,
+        ui.Text("/") as dirText,
+        ui.Text("(no file)") as fileText,
         ui.Button("Up").setWidth(1) as upButton,
         ui.Stack{childSpacing: "0.5rem", overflow: "scroll"} as filesStack
     ) as leftStack,
@@ -37,6 +45,7 @@ newScene: ui.Stack(
     ) as editorElement
 )
 
+upButton.raw.style.borderColor: "rgb(240,240,240)"
 upButton.onClick <>
     if currentDirectory ≠ "/"
         pos: currentDirectory.lastIndexOf("/")
@@ -58,6 +67,26 @@ showFiles: path ->
                 showFiles(file.path)
             else
                 fileText.setText file.name
+                mode: match extname(file.name)
+                    ".fus"    ? "fus"
+                    ".js"     ? "javascript"
+                    ".coffee" ? "coffee"
+                    ".cpp",
+                    ".c",
+                    ".cc",
+                    ".h",
+                    ".hh",
+                    ".hpp"    ? "c_cpp"
+                    ".css"    ? "css"
+                    ".html",
+                    ".htm",
+                    ".xhtml"  ? "html"
+                    ".json"   ? "json"
+                    ".svg"    ? "svg"
+                    ".xml"    ? "xml"
+                    ".md"     ? "markdown"
+                    |           "plain_text"
+                editor.getSession().setMode("ace/mode/\(mode)")
                 editor.setValue web.jsonPost("/svc/file/read", file.path)'wait.body
                 if not client.browser.isTouch
                     editor.focus()
@@ -84,11 +113,12 @@ do --
     ]
     editor.setShowPrintMargin(false)
     editor.setTheme("ace/theme/monokai_adjusted")
-    editor.getSession().setMode("ace/mode/fus")
+    #editor.getSession().setMode("ace/mode/fus")
     editor.getSession().setNewLineMode("unix")
     #editor.getSession().setUseWrapMode(true)
     editor.getSession().on("change", e ->
-        editor.getSession().resetCaches()
+        if editor.getSession().getMode().$id = "ace/mode/fus"
+            editor.getSession().resetCaches()
     )
     editor.focus()
     editor.navigateFileEnd()
