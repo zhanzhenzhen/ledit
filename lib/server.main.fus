@@ -31,6 +31,12 @@ $server.onRequest ctx ->
             response.send $fs.readFileAsync(request.data, {encoding: "utf8"})'wait
         catch
             response.sendError(null)
+    else if path.is("/svc/file/write")
+        try
+            $fs.writeFileAsync(request.data.path, request.data.content)'wait
+            response.send null
+        catch
+            response.sendError(null)
     else
         response.handleFile()
 $server.host: "127.0.0.1"

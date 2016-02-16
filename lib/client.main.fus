@@ -25,7 +25,7 @@ encodePath: path ->
 
 trimTrailingSpaces: code ->
     code.split("\n").map(m ->
-        m.match(r"^(.*?)[ \t]*$")[1]
+        m.match(r"^(.*?)[ \t]*$").1
     ).join("\n")
 
 newSession: (text, mode) ->
@@ -95,6 +95,21 @@ upButton.onClick <>
     if currentDirectory ≠ "/"
         pos: currentDirectory.lastIndexOf("/")
         showFiles(pos = 0 ? "/" | currentDirectory.substr(0, pos))
+saveButton.onClick <>
+    cursorPos: editor.getCursorPosition()
+    polishedCode: trimTrailingSpaces(editor.getValue())
+    editor.setValue polishedCode
+    editor.moveCursorToPosition(cursorPos)
+    editor.clearSelection()
+    if not client.browser.isTouch
+        editor.focus()
+    if currentFilePath ≠ null
+        try
+            web.jsonPost("/svc/file/write", {
+                path: currentFilePath
+                content: polishedCode
+            })'wait
+            dirty: false
 
 ui.root
 .setBackgroundPaint("rgb(39,40,34)")
