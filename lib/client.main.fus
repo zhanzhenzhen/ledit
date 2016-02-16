@@ -9,6 +9,7 @@ global.editor: null
 global.fusApi: require("futurescript/es5-target/locked-api")
 
 currentDirectory: null
+dirty: false
 
 extname: filename ->
     pos: filename.lastIndexOf(".")
@@ -16,6 +17,21 @@ extname: filename ->
         ""
     else
         filename.substr(pos)
+
+newSession: (text, mode) ->
+    dirty: false
+    oldSession: editor.getSession()
+    session: ace.EditSession(text, "ace/mode/\(mode)")
+    session.setNewLineMode("unix")
+    session.on("change", e ->
+        dirty: true
+        if mode = "fus"
+            session.resetCaches()
+    )
+    session.setUndoManager ace.UndoManager()
+    editor.setSession session
+    oldSession.getUndoManager().reset()
+    oldSession.destroy()
 
 newScene: ui.Stack(
     {
@@ -29,8 +45,16 @@ newScene: ui.Stack(
         },
         ui.Text("/") as dirText,
         ui.Text("(no file)") as fileText,
-        ui.Button("Up").setWidth(1) as upButton,
-        ui.Stack{childSpacing: "0.5rem", overflow: "scroll"} as filesStack
+        ui.Stack(
+            {childSpacing: "1rem", horizontal: true, height: "auto"},
+            ui.Button("Up") as upButton,
+            ui.Button("Save") as saveButton
+        ),
+        ui.Stack{
+            childSpacing: "0.5rem"
+            overflow: "scroll"
+            padding: ui.Padding("0rem", "1rem", "0rem", "0rem")
+        } as filesStack
     ) as leftStack,
     ui.Element(
         {
@@ -46,7 +70,9 @@ newScene: ui.Stack(
 )
 
 upButton.raw.style.borderColor: "rgb(240,240,240)"
+saveButton.raw.style.borderColor: "rgb(240,240,240)"
 upButton.onClick <>
+    newSession("", "plain_text")
     if currentDirectory ≠ "/"
         pos: currentDirectory.lastIndexOf("/")
         showFiles(pos = 0 ? "/" | currentDirectory.substr(0, pos))
@@ -56,6 +82,10 @@ ui.root
 .setPaint("rgb(240,240,240)")
 .add(newScene)
 
+Date.Observer(-- dirty).onUpdate(--
+    saveButton.setBackgroundPaint(dirty ? "rgb(192,0,64)" | "rgba(0,0,0,0)")
+)
+
 showFiles: path ->
     currentDirectory: path
     dirText.setText path
@@ -64,6 +94,7 @@ showFiles: path ->
         text: ui.Text(file.name)
         text.onClick <>
             if file.isDirectory
+                newSession("", "plain_text")
                 showFiles(file.path)
             else
                 fileText.setText file.name
@@ -86,8 +117,7 @@ showFiles: path ->
                     ".xml"    ? "xml"
                     ".md"     ? "markdown"
                     |           "plain_text"
-                editor.getSession().setMode("ace/mode/\(mode)")
-                editor.setValue web.jsonPost("/svc/file/read", file.path)'wait.body
+                newSession(web.jsonPost("/svc/file/read", file.path)'wait.body, mode)
                 if not client.browser.isTouch
                     editor.focus()
                 editor.navigateFileStart()
@@ -113,13 +143,7 @@ do --
     ]
     editor.setShowPrintMargin(false)
     editor.setTheme("ace/theme/monokai_adjusted")
-    #editor.getSession().setMode("ace/mode/fus")
-    editor.getSession().setNewLineMode("unix")
-    #editor.getSession().setUseWrapMode(true)
-    editor.getSession().on("change", e ->
-        if editor.getSession().getMode().$id = "ace/mode/fus"
-            editor.getSession().resetCaches()
-    )
+    newSession("", "plain_text")
     editor.focus()
     editor.navigateFileEnd()
     width: ""
