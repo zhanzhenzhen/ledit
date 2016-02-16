@@ -87,42 +87,45 @@ Date.Observer(-- dirty).onUpdate(--
 )
 
 showFiles: path ->
-    currentDirectory: path
-    dirText.setText path
-    filesStack.empty()
-    web.jsonPost("/svc/files", path)'wait.body.forEach file ->
-        text: ui.Text(file.name)
-        text.onClick <>
-            if file.isDirectory
+    try
+        files: web.jsonPost("/svc/files", path)'wait.body
+        currentDirectory: path
+        dirText.setText path
+        filesStack.empty()
+        files.forEach file ->
+            text: ui.Text(file.name)
+            text.onClick <>
                 newSession("", "plain_text")
-                showFiles(file.path)
-            else
-                fileText.setText file.name
-                mode: match extname(file.name)
-                    ".fus"    ? "fus"
-                    ".js"     ? "javascript"
-                    ".coffee" ? "coffee"
-                    ".cpp",
-                    ".c",
-                    ".cc",
-                    ".h",
-                    ".hh",
-                    ".hpp"    ? "c_cpp"
-                    ".css"    ? "css"
-                    ".html",
-                    ".htm",
-                    ".xhtml"  ? "html"
-                    ".json"   ? "json"
-                    ".svg"    ? "svg"
-                    ".xml"    ? "xml"
-                    ".md"     ? "markdown"
-                    |           "plain_text"
-                newSession(web.jsonPost("/svc/file/read", file.path)'wait.body, mode)
-                if not client.browser.isTouch
-                    editor.focus()
-                editor.navigateFileStart()
-        text.setPointer "link"
-        filesStack.add text
+                if file.isDirectory
+                    showFiles(file.path)
+                else
+                    try
+                        mode: match extname(file.name)
+                            ".fus"    ? "fus"
+                            ".js"     ? "javascript"
+                            ".coffee" ? "coffee"
+                            ".cpp",
+                            ".c",
+                            ".cc",
+                            ".h",
+                            ".hh",
+                            ".hpp"    ? "c_cpp"
+                            ".css"    ? "css"
+                            ".html",
+                            ".htm",
+                            ".xhtml"  ? "html"
+                            ".json"   ? "json"
+                            ".svg"    ? "svg"
+                            ".xml"    ? "xml"
+                            ".md"     ? "markdown"
+                            |           "plain_text"
+                        newSession(web.jsonPost("/svc/file/read", file.path)'wait.body, mode)
+                        fileText.setText file.name
+                        if not client.browser.isTouch
+                            editor.focus()
+                        editor.navigateFileStart()
+            text.setPointer "link"
+            filesStack.add text
 showFiles "/"
 
 do --

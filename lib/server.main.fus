@@ -13,18 +13,24 @@ $server.onRequest ctx ->
     if path.is("/")
         response.handleHome()
     else if path.is("/svc/files")
-        files: $fs.readdirAsync(request.data)'wait
-        stats: Promise.all(files.map(file -> $fs.statAsync($path.posix.join(request.data, file))))'wait
-        response.send files.map((file, index) ->
-            path: $path.join(request.data, file)
-            {
-                name: file
-                path: path
-                isDirectory: stats.(index).isDirectory()
-            }
-        )
+        try
+            files: $fs.readdirAsync(request.data)'wait
+            stats: Promise.all(files.map(file -> $fs.statAsync($path.posix.join(request.data, file))))'wait
+            response.send files.map((file, index) ->
+                path: $path.join(request.data, file)
+                {
+                    name: file
+                    path: path
+                    isDirectory: stats.(index).isDirectory()
+                }
+            )
+        catch
+            response.sendError(null)
     else if path.is("/svc/file/read")
-        response.send $fs.readFileAsync(request.data, {encoding: "utf8"})'wait
+        try
+            response.send $fs.readFileAsync(request.data, {encoding: "utf8"})'wait
+        catch
+            response.sendError(null)
     else
         response.handleFile()
 $server.host: "127.0.0.1"
