@@ -9,6 +9,7 @@ global.editor: null
 global.fusApi: require("futurescript/es5-target/locked-api")
 
 currentDirectory: null
+currentFilePath: null
 dirty: false
 
 extname: filename ->
@@ -21,6 +22,11 @@ extname: filename ->
 # Do not need to encode all special chars, for better look.
 encodePath: path ->
     path.replace(r"%"g, "%25")
+
+trimTrailingSpaces: code ->
+    code.split("\n").map(m ->
+        m.match(r"^(.*?)[ \t]*$")[1]
+    ).join("\n")
 
 newSession: (text, mode) ->
     dirty: false
@@ -51,14 +57,18 @@ newScene: ui.Stack(
         ui.Text("/", {lineHeight: 1.3}) as dirText,
         ui.Text("(no file)") as fileText,
         ui.Stack(
-            {childSpacing: "1rem", horizontal: true, height: "auto"},
+            {
+                childSpacing: "1rem"
+                horizontal: true
+                height: "auto"
+                padding: ui.Padding("0rem", "0rem", "0rem", "1rem")
+            },
             ui.Button("Up").setWidth(1) as upButton,
             ui.Button("Save").setWidth(1) as saveButton
         ),
         ui.Stack{
             childSpacing: "0.5rem"
             overflow: "scroll"
-            padding: ui.Padding("0rem", "1rem", "0rem", "0rem")
         } as filesStack
     ) as leftStack,
     ui.Element(
@@ -104,11 +114,12 @@ refresh: --
         files: web.jsonPost("/svc/files", path)'wait.body
         currentDirectory: path
         dirText.setText path
+        currentFilePath: null
+        fileText.setText "(no file)"
         filesStack.empty()
         files.forEach file ->
             text: ui.Text(file.name)
             text.onClick <>
-                newSession("", "plain_text")
                 if file.isDirectory
                     showFiles(file.path)
                 else
@@ -133,13 +144,14 @@ refresh: --
                             ".md"     ? "markdown"
                             |           "plain_text"
                         newSession(web.jsonPost("/svc/file/read", file.path)'wait.body, mode)
+                        currentFilePath: file.path
                         fileText.setText file.name
                         if not client.browser.isTouch
                             editor.focus()
                         editor.navigateFileStart()
             text.setPointer "link"
             filesStack.add text
-            fileText.setText "(no file)"
+        newSession("", "plain_text")
 client.onUriChange refresh
 
 showFiles: path ->
