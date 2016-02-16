@@ -18,6 +18,10 @@ extname: filename ->
     else
         filename.substr(pos)
 
+# Do not need to encode all special chars, for better look.
+encodePath: path ->
+    path.replace(r"%"g, "%25")
+
 newSession: (text, mode) ->
     dirty: false
     oldSession: editor.getSession()
@@ -75,8 +79,7 @@ newTabButton.raw.style.borderColor: "rgb(240,240,240)"
 upButton.raw.style.borderColor: "rgb(240,240,240)"
 saveButton.raw.style.borderColor: "rgb(240,240,240)"
 newTabButton.onClick <>
-    if not currentDirectory.includes("%")
-        open "/#\(currentDirectory)"
+    open "/#\(encodePath(currentDirectory))"
 upButton.onClick <>
     newSession("", "plain_text")
     if currentDirectory ≠ "/"
@@ -90,6 +93,9 @@ ui.root
 
 Date.Observer(-- dirty).onUpdate(--
     saveButton.setBackgroundPaint(dirty ? "rgb(192,0,64)" | "rgba(0,0,0,0)")
+)
+Date.Observer(-- fileText.getText()).onUpdate(e ->
+    document.title: e.value
 )
 
 refresh: --
@@ -137,7 +143,7 @@ refresh: --
 client.onUriChange refresh
 
 showFiles: path ->
-    location.href: "#\(path)"
+    location.href: "#\(encodePath(path))"
 if not location.hash.startsWith("#/")
     showFiles "/"
 else
