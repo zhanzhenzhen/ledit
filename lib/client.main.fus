@@ -28,6 +28,12 @@ trimTrailingSpaces: code ->
         m.match(r"^(.*?)[ \t]*$").1
     ).join("\n")
 
+ensureEndingNewline: code ->
+    if code.endsWith("\n")
+        code
+    else
+        code + "\n"
+
 newSession: (text, mode) ->
     dirty: false
     oldSession: editor.getSession()
@@ -97,7 +103,7 @@ upButton.onClick <>
         showFiles(pos = 0 ? "/" | currentDirectory.substr(0, pos))
 saveButton.onClick <>
     cursorPos: editor.getCursorPosition()
-    polishedCode: trimTrailingSpaces(editor.getValue())
+    polishedCode: editor.getValue() |> trimTrailingSpaces |> ensureEndingNewline
     editor.setValue polishedCode
     editor.moveCursorToPosition(cursorPos)
     editor.clearSelection()
