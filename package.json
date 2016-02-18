@@ -1,6 +1,6 @@
 {
     "name": "ledit",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "description": "ledit",
     "keywords": ["editor", "browser", "localhost", "local", "ide"],
     "author": "Zhenzhen Zhan <zhanzhenzhen@hotmail.com>",

@@ -59,6 +59,7 @@ newScene: ui.Stack(
             padding: "1rem"
             childSpacing: "1rem"
         },
+        ui.Button("Settings").setWidth(1) as settingsButton,
         ui.Button("New Tab").setWidth(1) as newTabButton,
         ui.Text("/", {lineHeight: 1.3}) as dirText,
         ui.Text("(no file)") as fileText,
@@ -91,6 +92,7 @@ newScene: ui.Stack(
 )
 
 dirText.raw.style.wordWrap: "break-word"
+settingsButton.raw.style.borderColor: "rgb(240,240,240)"
 newTabButton.raw.style.borderColor: "rgb(240,240,240)"
 upButton.raw.style.borderColor: "rgb(240,240,240)"
 saveButton.raw.style.borderColor: "rgb(240,240,240)"

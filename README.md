@@ -28,3 +28,11 @@ http://localhost:<port>
 ```
 
 Default port is 50000.
+
+# Develop this project
+
+To debug, type:
+
+```bash
+node_modules/site/bin/site build debug && bin/ledit
+```
